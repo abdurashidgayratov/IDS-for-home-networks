@@ -1,40 +1,31 @@
-# Backend (Java/Maven)
+# Backend
 backend/target/
 backend/.mvn/
 backend/mvnw
 backend/mvnw.cmd
-*.class
-*.jar
-*.war
-*.ear
-.settings/
-.project
-.classpath
+backend/.DS_Store
 
-# Frontend (React/Node)
+# Frontend
 frontend/node_modules/
 frontend/build/
-frontend/.env
+frontend/.DS_Store
+
+# Logs
 *.log
+/var/log/
+
+# Database
+*.db
 
 # IDE
 .idea/
-*.iml
 .vscode/
-*.swp
-*.swo
+*.iml
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-logs/
-*.log
-
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Sensitive
+application-prod.properties
+*.env
