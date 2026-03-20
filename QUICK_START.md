@@ -24,7 +24,7 @@ This script automatically:
 - ✅ Creates database
 - ✅ Installs backend and frontend dependencies
 
-### 3. Start the Application
+### 3. Start     the Application
 
 **Option A: Separate Terminals**
 
@@ -224,11 +224,5 @@ sudo suricata -T -c /opt/homebrew/etc/suricata/suricata.yaml
 
 ---
 
-## Yordam
-
-- GitHub Issues: https://github.com/YOUR_USERNAME/ids-home-network/issues
-- Email: your@email.com
-
----
 
 ⭐ Agar foydali bo'lsa, star bering!
