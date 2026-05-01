@@ -5,46 +5,70 @@ class WebSocketService {
   constructor() {
     this.stompClient = null;
     this.connected = false;
+    this.userId = null;
+    this.onAlertReceived = null;
   }
 
   connect(userId, onAlertReceived) {
-    const socket = new SockJS('http://localhost:8080/ws');
-    this.stompClient = Stomp.over(socket);
+    this.userId = userId;
+    this.onAlertReceived = onAlertReceived;
 
-    this.stompClient.connect(
-      {},
-      () => {
-        console.log('WebSocket Connected');
-        this.connected = true;
+    try {
+      const socket = new SockJS('http://localhost:8080/ws');
+      this.stompClient = Stomp.over(socket);
+      this.stompClient.debug = () => {};
 
-        // Subscribe to user-specific alerts
-        this.stompClient.subscribe(`/topic/alerts/${userId}`, (message) => {
-          const alert = JSON.parse(message.body);
-          console.log('New alert received:', alert);
-          if (onAlertReceived) {
-            onAlertReceived(alert);
-          }
-        });
-      },
-      (error) => {
-        console.error('WebSocket Connection Error:', error);
-        this.connected = false;
-        
-        // Retry connection after 5 seconds
-        setTimeout(() => {
-          console.log('Retrying WebSocket connection...');
-          this.connect(userId, onAlertReceived);
-        }, 5000);
-      }
-    );
+      const headers = {};
+      const token = localStorage.getItem('token');
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      this.stompClient.connect(
+        headers,
+        (frame) => {
+          this.connected = true;
+          console.log('WebSocket Connected');
+
+          setTimeout(() => {
+            try {
+              if (this.stompClient && this.connected) {
+                this.stompClient.subscribe(
+                  `/topic/alerts/${userId}`,
+                  (message) => {
+                    try {
+                      const alert = JSON.parse(message.body);
+                      if (this.onAlertReceived) this.onAlertReceived(alert);
+                    } catch (e) {
+                      console.error('Parse error:', e);
+                    }
+                  }
+                );
+              }
+            } catch (e) {
+              console.error('Subscribe error:', e);
+            }
+          }, 500);
+        },
+        (error) => {
+          this.connected = false;
+          setTimeout(() => {
+            if (this.userId) this.connect(this.userId, this.onAlertReceived);
+          }, 5000);
+        }
+      );
+    } catch (e) {
+      console.error('WebSocket init error:', e);
+    }
   }
 
   disconnect() {
     if (this.stompClient && this.connected) {
-      this.stompClient.disconnect();
+      try {
+        this.stompClient.disconnect();
+      } catch (e) {}
       this.connected = false;
-      console.log('WebSocket Disconnected');
     }
+    this.userId = null;
+    this.onAlertReceived = null;
   }
 
   isConnected() {

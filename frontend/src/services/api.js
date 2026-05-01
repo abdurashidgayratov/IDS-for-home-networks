@@ -56,7 +56,8 @@ export const alertAPI = {
   getById: (id) => api.get(`/alerts/${id}`),
   markAsRead: (id) => api.put(`/alerts/${id}/read`),
   markAllAsRead: () => api.put('/alerts/read-all'),
-  delete: (id) => api.delete(`/alerts/${id}`)
+  delete: (id) => api.delete(`/alerts/${id}`),
+  blockIp: (id) => api.post(`/alerts/${id}/block-ip`)
 };
 
 // Statistics APIs

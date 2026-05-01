@@ -7,6 +7,7 @@ const ITEMS_PER_PAGE = 10;
 function AlertList({ alerts, onRefresh }) {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [blockingId, setBlockingId] = useState(null);
 
   const totalPages = Math.ceil(alerts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -88,6 +89,21 @@ function AlertList({ alerts, onRefresh }) {
     }
   };
 
+  const handleBlockIp = async (alertId, sourceIp, e) => {
+    e && e.stopPropagation();
+    if (!window.confirm(`Block IP: ${sourceIp}?`)) return;
+    setBlockingId(alertId);
+    try {
+      await alertAPI.blockIp(alertId);
+      alert(`✅ ${sourceIp} bloklandi!`);
+      onRefresh();
+    } catch (error) {
+      alert(`❌ Xato: ${error.response?.data?.error || error.message}`);
+    } finally {
+      setBlockingId(null);
+    }
+  };
+
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString();
   };
@@ -128,6 +144,15 @@ function AlertList({ alerts, onRefresh }) {
               <span>→</span>
               <span>🎯 {alert.destinationIp}:{alert.destinationPort || '?'}</span>
               <span className="protocol-badge">{alert.protocol}</span>
+            </div>
+            <div className="alert-actions" onClick={e => e.stopPropagation()}>
+              <button
+                className="btn-block-ip"
+                onClick={(e) => handleBlockIp(alert.id, alert.sourceIp, e)}
+                disabled={blockingId === alert.id}
+              >
+                {blockingId === alert.id ? '⏳...' : '🚫 Block IP'}
+              </button>
             </div>
           </div>
         ))}
@@ -228,6 +253,13 @@ function AlertList({ alerts, onRefresh }) {
                   Mark as Read
                 </button>
               )}
+              <button
+                onClick={(e) => handleBlockIp(selectedAlert.id, selectedAlert.sourceIp, e)}
+                className="btn-block-ip"
+                disabled={blockingId === selectedAlert.id}
+              >
+                {blockingId === selectedAlert.id ? '⏳...' : '🚫 Block IP'}
+              </button>
               <button onClick={() => handleDelete(selectedAlert.id)} className="btn-danger">
                 Delete
               </button>

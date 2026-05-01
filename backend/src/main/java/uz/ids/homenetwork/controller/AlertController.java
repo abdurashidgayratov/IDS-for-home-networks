@@ -9,7 +9,7 @@ import uz.ids.homenetwork.dto.AlertDTO;
 import uz.ids.homenetwork.model.User;
 import uz.ids.homenetwork.service.AlertService;
 import uz.ids.homenetwork.service.AuthService;
-
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -102,6 +102,46 @@ public class AlertController {
         } catch (Exception e) {
             log.error("Failed to delete alert", e);
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    @PostMapping("/{id}/block-ip")
+    public ResponseEntity<?> blockIp(@PathVariable Long id) {
+        try {
+            User user = authService.getCurrentUser();
+            AlertDTO alert = alertService.getAlertById(id, user);
+            String ip = alert.getSourceIp();
+
+            String os = System.getProperty("os.name").toLowerCase();
+            ProcessBuilder pb;
+
+            if (os.contains("mac")) {
+                // macOS uchun
+                pb = new ProcessBuilder(
+                        "sudo", "pfctl", "-t", "blocked", "-T", "add", ip
+                );
+            } else {
+                // Linux uchun
+                pb = new ProcessBuilder(
+                        "sudo", "iptables", "-A", "INPUT", "-s", ip, "-j", "DROP"
+                );
+            }
+
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            process.waitFor(10, TimeUnit.SECONDS);
+
+            log.info("IP {} blocked by {}", ip, user.getUsername());
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "IP blocked: " + ip,
+                    "ip", ip,
+                    "blocked", true
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
