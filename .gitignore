@@ -29,3 +29,12 @@ Thumbs.db
 # Sensitive
 application-prod.properties
 *.env
+
+
+backend/src/main/resources/application.properties
+.idea/
+backend/.idea/
+backend/target/
+frontend/node_modules/
+frontend/build/
+.DS_Store

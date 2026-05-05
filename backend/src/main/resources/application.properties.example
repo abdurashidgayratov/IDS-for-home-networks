@@ -1,0 +1,37 @@
+# Server Configuration
+server.port=8080
+spring.application.name=IDS Home Network
+
+# Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/ids_home_network
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# Suricata Configuration - Linux Server
+suricata.log.path=/var/log/suricata/eve.json
+suricata.executable.path=/usr/bin/suricata
+suricata.config.path=/etc/suricata/suricata.yaml
+suricata.interface=eth0
+
+# JWT Configuration
+jwt.secret=YOUR_JWT_SECRET_KEY_HERE
+jwt.expiration=86400000
+
+# File Upload
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Logging
+logging.level.uz.ids.homenetwork=INFO
+logging.level.org.springframework.security=WARN
+
+# CORS
+spring.web.cors.allowed-origins=*
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
